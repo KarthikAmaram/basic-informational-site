@@ -1,32 +1,17 @@
-const http = require('http');
-const fs = require('fs').promises;
-const path = require('path');
+const express = require("express");
+const app = express();
+const path = require("path");
 
-const server = http.createServer(async (req, res) => {
-    let requestedPath = req.url.replace(/\/$/, '');
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get("/about", (req, res) => res.sendFile(path.join(__dirname, 'about.html')));
+app.get("/contact-me", (req, res) => res.sendFile(path.join(__dirname, 'contact-me.html')));
+app.get("/404", (req, res) => res.sendFile(path.join(__dirname, '404.html')));
 
-    if (requestedPath === '') requestedPath = '/index'
-
-    const filePath = path.join(__dirname, requestedPath + '.html');
-
-    const contentType = 'text/html';
-
-    try {
-        const content = await fs.readFile(filePath);
-        res.writeHead(200, {'Content-Type': contentType})
-        res.end(content);
-    } catch(err) {
-        try {
-            const notFoundContent = await fs.readFile(path.join(__dirname, '404.html'));
-            res.writeHead(404, { 'Content-Type': 'text/html' });
-            res.end(notFoundContent);
-        } catch {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('404 Not Found');
-        }
-}
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
 })
 
-server.listen(3000, () => {
-    console.log('Server running at https://localhost:3000');
-})
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`My first Express app - listening on port ${PORT}!`);
+});
